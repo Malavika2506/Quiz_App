@@ -1,0 +1,32 @@
+
+*{
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+.navbar {
+  background-color: transparent;           /* Fully transparent */
+  backdrop-filter: blur(0px);             /* Blur effect */
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Optional subtle border */
+}
+
+.navbar a,
+.navbar .nav-link,
+.navbar .navbar-brand {
+  color: white !important;
+  margin-right: 20px;
+}
+
+.navbar-toggler-icon {
+  color: white;
+}
+
+
+body {
+  background: url('quizappbackground.jpg') no-repeat center center fixed;
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+}
+
+
