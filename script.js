@@ -1,136 +1,139 @@
-document.addEventListener("DOMContentLoaded", () => {
-  document
-    .querySelector(".startquizbtn")
-    .addEventListener("click", function (e) {
-      e.preventDefault();
+const questions = [
+  { id: 1, question: "What is the capital of India?", options: ["Mumbai", "New Delhi", "Chennai", "Kolkata"], answer: "New Delhi" },
+  { id: 2, question: "What does HTML stand for?", options: ["Hyper Text Markup Language", "Home Tool Markup Language", "Hyperlinks Text Markup Language", "Hyper Tool Multi Language"], answer: "Hyper Text Markup Language" },
+  { id: 3, question: "Which CSS property controls stacking order?", options: ["position", "z-index", "display", "visibility"], answer: "z-index" },
+  { id: 4, question: "Which method selects element by ID in JS?", options: ["getElementByClass", "querySelectorAll", "getElementById", "getElementsByTagName"], answer: "getElementById" },
+  { id: 5, question: "Which Bootstrap class spans full width?", options: ["container", "row", "col-12", "d-block"], answer: "col-12" }
+];
 
-      // Hide start screen
-      document.querySelector(".startquizbtn").closest(".row").style.display =
-        "none";
+let currentQuestion = 0;
+let score = 0;
+let timer;
+let userAnswers = {};
 
-      // Show question card
-      document.getElementById("questionCard").style.display = "flex";
-    });
+const startScreen = document.getElementById("start-screen");
+const quizScreen = document.getElementById("quiz-screen");
+const resultScreen = document.getElementById("result-screen");
 
-  //Questionss
-  document.addEventListener("DOMContentLoaded", () => {
-  const questions = [
-    {
-      id: 1,
-      question: "What is the capital of India?",
-      options: ["Mumbai", "New Delhi", "Chennai", "Kolkata"],
-      answer: "New Delhi",
-    },
-    {
-      id: 2,
-      question: "What does HTML stand for?",
-      options: [
-        "Hyper Trainer Marking Language",
-        "Hyper Text Marketing Language",
-        "Hyper Text Markup Language",
-        "Hyper Tool Multi Language",
-      ],
-      answer: "Hyper Text Markup Language",
-    },
-    {
-      id: 3,
-      question:
-        "Which CSS property is used to control the stacking order of elements?",
-      options: ["position", "z-index", "display", "visibility"],
-      answer: "z-index",
-    },
-    {
-      id: 4,
-      question:
-        "Which JavaScript method is used to select an element by its ID?",
-      options: [
-        "getElementByClass",
-        "querySelectorAll",
-        "getElementById",
-        "getElementsByTagName",
-      ],
-      answer: "getElementById",
-    },
-    {
-      id: 5,
-      question:
-        "Which Bootstrap class makes an element span the full width of its parent?",
-      options: ["container", "row", "col-12", "d-block"],
-      answer: "col-12",
-    },
-  ];
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
+const progressEl = document.getElementById("progress");
+const timerEl = document.getElementById("timer");
+const feedbackEl = document.getElementById("feedback");
+const nextBtn = document.getElementById("next-btn");
+const scoreEl = document.getElementById("score");
+const reviewEl = document.getElementById("review");
 
-  let currentQuestionIndex = 0;
-  let timerInterval;
+document.getElementById("start-btn").addEventListener("click", startQuiz);
+document.getElementById("next-btn").addEventListener("click", nextQuestion);
+document.getElementById("restart-btn").addEventListener("click", restartQuiz);
 
-  const questionText = document.getElementById("questionText");
-  const optionsContainer = document.querySelector(".d-grid");
-  const feedbackBox = document.getElementById("feedbackBox");
-  const timerDisplay = document.getElementById("timerDisplay");
+function startQuiz() {
+  startScreen.classList.add("hidden");
+  quizScreen.classList.remove("hidden");
+  score = 0;
+  currentQuestion = 0;
+  userAnswers = {};
+  loadQuestion();
+}
 
-  function startTimer() {
-    let timeLeft = 10;
-    timerDisplay.textContent = `Time left: ${timeLeft}s`;
+function loadQuestion() {
+  clearInterval(timer);
+  feedbackEl.textContent = "";
+  nextBtn.disabled = true;
 
-    timerInterval = setInterval(() => {
-      timeLeft--;
-      timerDisplay.textContent = `Time left: ${timeLeft}s`;
+  const q = questions[currentQuestion];
+  progressEl.textContent = `Q${currentQuestion + 1}/${questions.length}`;
+  questionEl.textContent = q.question;
+  optionsEl.innerHTML = "";
 
-      if (timeLeft <= 0) {
-        clearInterval(timerInterval);
-        feedbackBox.textContent = "⏰ Time's up!";
-        setTimeout(() => nextQuestion(), 1000);
-      }
-    }, 1000);
-  }
-
-  function showQuestion(index) {
-    clearInterval(timerInterval);
-    feedbackBox.textContent = "";
-    const questionObj = questions[index];
-    questionText.textContent = questionObj.question;
-    optionsContainer.innerHTML = "";
-
-    questionObj.options.forEach((option) => {
-      const btn = document.createElement("button");
-      btn.className = "btn btn-outline-light";
-      btn.textContent = option;
-      btn.onclick = () => checkAnswer(option, questionObj.answer);
-      optionsContainer.appendChild(btn);
-    });
-
-    startTimer();
-  }
-
-  function checkAnswer(selected, correct) {
-    clearInterval(timerInterval);
-    if (selected === correct) {
-      feedbackBox.textContent = "✅ Correct! 🎉";
-    } else {
-      feedbackBox.textContent = `❌ Incorrect. Correct answer: ${correct}`;
-    }
-
-    setTimeout(() => nextQuestion(), 1500);
-  }
-
-  function nextQuestion() {
-    currentQuestionIndex++;
-    if (currentQuestionIndex < questions.length) {
-      showQuestion(currentQuestionIndex);
-    } else {
-      questionText.textContent = "🎉 Quiz complete!";
-      optionsContainer.innerHTML = "";
-      feedbackBox.textContent = "";
-      timerDisplay.textContent = "";
-    }
-  }
-
-  document.querySelector(".startquizbtn").addEventListener("click", function (e) {
-    e.preventDefault();
-    document.querySelector(".startquizbtn").closest(".row").style.display = "none";
-    document.getElementById("questionCard").style.display = "flex";
-    showQuestion(currentQuestionIndex);
+  q.options.forEach(opt => {
+    const div = document.createElement("div");
+    div.classList.add("option");
+    div.textContent = opt;
+    div.addEventListener("click", () => selectAnswer(opt, q.answer, div));
+    optionsEl.appendChild(div);
   });
-});
 
-});
+  startTimer();
+}
+
+function selectAnswer(selected, correct, div) {
+  clearInterval(timer);
+  const options = document.querySelectorAll(".option");
+  options.forEach(o => o.style.pointerEvents = "none");
+
+  userAnswers[questions[currentQuestion].id] = selected;
+
+  if (selected === correct) {
+    score++;
+    div.classList.add("correct");
+    feedbackEl.textContent = "✅ Correct!";
+  } else {
+    div.classList.add("wrong");
+    feedbackEl.textContent = `❌ Wrong! Correct: ${correct}`;
+  }
+
+  nextBtn.disabled = false;
+  if (currentQuestion === questions.length - 1) {
+    nextBtn.textContent = "Submit";
+  }
+}
+
+function startTimer() {
+  let time = 10;
+  timerEl.textContent = `Time: ${time}s`;
+  timer = setInterval(() => {
+    time--;
+    timerEl.textContent = `Time: ${time}s`;
+    if (time <= 0) {
+      clearInterval(timer);
+      feedbackEl.textContent = "⏰ Time's up!";
+      userAnswers[questions[currentQuestion].id] = "No Answer";
+      nextBtn.disabled = false;
+      if (currentQuestion === questions.length - 1) {
+        nextBtn.textContent = "Submit";
+      }
+    }
+  }, 1000);
+}
+
+function nextQuestion() {
+  currentQuestion++;
+  if (currentQuestion < questions.length) {
+    loadQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  quizScreen.classList.add("hidden");
+  resultScreen.classList.remove("hidden");
+
+  scoreEl.textContent = `Your Score: ${score} out of ${questions.length}`;
+
+  reviewEl.innerHTML = "";
+  questions.forEach(q => {
+    const p = document.createElement("p");
+    const userAns = userAnswers[q.id] || "No Answer";
+    if (userAns === q.answer) {
+      p.innerHTML = `✔ ${q.question} <br> Your Answer: ${userAns}`;
+      p.style.color = "lightgreen";
+    } else {
+      p.innerHTML = `❌ ${q.question} <br> Your Answer: ${userAns} | Correct: ${q.answer}`;
+      p.style.color = "salmon";
+    }
+    reviewEl.appendChild(p);
+  });
+
+  // Save to localStorage
+  localStorage.setItem("quizScore", score);
+  localStorage.setItem("quizAnswers", JSON.stringify(userAnswers));
+}
+
+function restartQuiz() {
+  resultScreen.classList.add("hidden");
+  startScreen.classList.remove("hidden");
+  nextBtn.textContent = "Next";
+}

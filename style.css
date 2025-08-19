@@ -1,32 +1,76 @@
-
-*{
-  overflow-x: hidden;
-  overflow-y: hidden;
-}
-.navbar {
-  background-color: transparent;           /* Fully transparent */
-  backdrop-filter: blur(0px);             /* Blur effect */
-  color: white;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Optional subtle border */
-}
-
-.navbar a,
-.navbar .nav-link,
-.navbar .navbar-brand {
-  color: white !important;
-  margin-right: 20px;
-}
-
-.navbar-toggler-icon {
-  color: white;
-}
-
-
 body {
-  background: url('quizappbackground.jpg') no-repeat center center fixed;
-  background-size: cover;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(120deg, #667eea, #764ba2);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
   margin: 0;
-  padding: 0;
 }
 
+.screen {
+  text-align: center;
+  width: 90%;
+  max-width: 500px;
+  padding: 20px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 10px;
+}
 
+.hidden {
+  display: none;
+}
+
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+#options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option {
+  padding: 10px;
+  border: 1px solid white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.option:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.correct {
+  background: green;
+}
+
+.wrong {
+  background: red;
+}
+
+button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  border: none;
+  background: white;
+  color: black;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: gray;
+  cursor: not-allowed;
+}
+
+#review {
+  text-align: left;
+  margin-top: 15px;
+}
