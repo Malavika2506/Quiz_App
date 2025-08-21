@@ -1,38 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quiz App</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <!-- Start Screen -->
-  <div id="start-screen" class="screen">
-    <h1>QUIZ APP</h1>
-    <button id="start-btn">Start Quiz</button>
-  </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz App</title>
 
-  <!-- Quiz Screen -->
-  <div id="quiz-screen" class="screen hidden">
-    <div class="quiz-header">
-      <span id="progress">Q1/5</span>
-      <span id="timer">Time: 10s</span>
+    <!-- Fontawesome cdn -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
+      integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Site Header -->
+    <div class="site-header">
+      <h1 class="main-title">TechTrek</h1>
+      <p class="subtitle">Your journey through computer science starts here</p>
     </div>
-    <h2 id="question"></h2>
-    <div id="options"></div>
-    <p id="feedback"></p>
-    <button id="next-btn" disabled>Next</button>
-  </div>
 
-  <!-- Result Screen -->
-  <div id="result-screen" class="screen hidden">
-    <h2>Quiz Completed 🎉</h2>
-    <p id="score"></p>
-    <div id="review"></div>
-    <button id="restart-btn">Restart Quiz</button>
-  </div>
+    <main class="content-wrapper">
+      <!-- Start Screen -->
+      <div id="start-screen" class="screen">
+        <h1>QUIZ APP</h1>
+        <button id="start-btn">Start Quiz</button>
+      </div>
 
-  <script src="script.js"></script>
-</body>
+      <!-- Quiz Screen -->
+      <div id="quiz-screen" class="screen hidden">
+        <div class="quiz-header">
+          <span id="progress">Q1/5</span>
+          <span id="timer">Time: 10s</span>
+        </div>
+
+        <!-- animated block -->
+        <div class="qa-container">
+          <div id="qa-card">
+            <h2 id="question"></h2>
+            <div id="options"></div>
+            <p id="feedback"></p>
+          </div>
+        </div>
+
+        <button id="next-btn" disabled>Next</button>
+      </div>
+
+      <!-- Result Screen -->
+      <div id="result-screen" class="screen hidden">
+        <h2>Quiz Completed 🎉</h2>
+
+        <!-- Single score circle -->
+        <div class="score-circle">
+          <div id="score-text">0/0</div>
+          <div id="percentage-text">0%</div>
+        </div>
+
+        <button id="review-btn">Show Review</button>
+        <button id="restart-btn">Restart Quiz</button>
+
+        <div id="review" class="hidden"></div>
+      </div>
+    </main>
+    <script src="script.js"></script>
+  </body>
 </html>

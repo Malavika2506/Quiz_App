@@ -1,139 +1,223 @@
 const questions = [
-  { id: 1, question: "What is the capital of India?", options: ["Mumbai", "New Delhi", "Chennai", "Kolkata"], answer: "New Delhi" },
-  { id: 2, question: "What does HTML stand for?", options: ["Hyper Text Markup Language", "Home Tool Markup Language", "Hyperlinks Text Markup Language", "Hyper Tool Multi Language"], answer: "Hyper Text Markup Language" },
-  { id: 3, question: "Which CSS property controls stacking order?", options: ["position", "z-index", "display", "visibility"], answer: "z-index" },
-  { id: 4, question: "Which method selects element by ID in JS?", options: ["getElementByClass", "querySelectorAll", "getElementById", "getElementsByTagName"], answer: "getElementById" },
-  { id: 5, question: "Which Bootstrap class spans full width?", options: ["container", "row", "col-12", "d-block"], answer: "col-12" }
+  {
+    q: "What does HTML stand for?",
+    options: [
+      "Hyper Text Markup Language",
+      "Home Tool Markup Language",
+      "Hyperlinks Text Management Language",
+      "Hyper Transfer Markup Language",
+    ],
+    answer: 0,
+  },
+  {
+    q: "Which CSS property changes text color?",
+    options: ["font-style", "color", "text-decoration", "background"],
+    answer: 1,
+  },
+  {
+    q: "Inside which HTML element do we put JavaScript?",
+    options: ["<js>", "<script>", "<javascript>", "<code>"],
+    answer: 1,
+  },
+  {
+    q: "Which symbol is used for comments in JavaScript?",
+    options: ["//", "/* */", "<!-- -->", "#"],
+    answer: 0,
+  },
+  {
+    q: "Which company developed JavaScript?",
+    options: ["Google", "Microsoft", "Netscape", "Apple"],
+    answer: 2,
+  },
 ];
-
-let currentQuestion = 0;
-let score = 0;
-let timer;
-let userAnswers = {};
 
 const startScreen = document.getElementById("start-screen");
 const quizScreen = document.getElementById("quiz-screen");
 const resultScreen = document.getElementById("result-screen");
 
-const questionEl = document.getElementById("question");
-const optionsEl = document.getElementById("options");
 const progressEl = document.getElementById("progress");
 const timerEl = document.getElementById("timer");
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
 const feedbackEl = document.getElementById("feedback");
 const nextBtn = document.getElementById("next-btn");
-const scoreEl = document.getElementById("score");
+const qaCard = document.getElementById("qa-card");
+
+const scoreText = document.getElementById("score-text");
+const percentageText = document.getElementById("percentage-text");
+const reviewBtn = document.getElementById("review-btn");
 const reviewEl = document.getElementById("review");
+const restartBtn = document.getElementById("restart-btn");
 
 document.getElementById("start-btn").addEventListener("click", startQuiz);
-document.getElementById("next-btn").addEventListener("click", nextQuestion);
-document.getElementById("restart-btn").addEventListener("click", restartQuiz);
+nextBtn.addEventListener("click", () => {
+  clearInterval(timer);
+  goNext();
+});
+reviewBtn.addEventListener("click", toggleReview);
+restartBtn.addEventListener("click", restartQuiz);
+
+let current = 0;
+let score = 0;
+let timer = null;
+let userAnswers = [];
 
 function startQuiz() {
   startScreen.classList.add("hidden");
   quizScreen.classList.remove("hidden");
+  current = 0;
   score = 0;
-  currentQuestion = 0;
-  userAnswers = {};
+  userAnswers = [];
   loadQuestion();
 }
 
 function loadQuestion() {
-  clearInterval(timer);
+  if (current >= questions.length) return finishQuiz();
+
+  qaCard.classList.remove("slide-in");
+  qaCard.classList.remove("slide-out");
+  void qaCard.offsetWidth; // force reflow
+  qaCard.classList.add("slide-in");
+
   feedbackEl.textContent = "";
   nextBtn.disabled = true;
 
-  const q = questions[currentQuestion];
-  progressEl.textContent = `Q${currentQuestion + 1}/${questions.length}`;
-  questionEl.textContent = q.question;
-  optionsEl.innerHTML = "";
+  const q = questions[current];
+  progressEl.textContent = `Q${current + 1}/${questions.length}`;
+  questionEl.textContent = q.q;
 
-  q.options.forEach(opt => {
+  optionsEl.innerHTML = "";
+  q.options.forEach((opt, idx) => {
     const div = document.createElement("div");
-    div.classList.add("option");
+    div.className = "option";
     div.textContent = opt;
-    div.addEventListener("click", () => selectAnswer(opt, q.answer, div));
+    div.addEventListener("click", () => selectOption(idx, div));
     optionsEl.appendChild(div);
   });
 
+  // start timer
   startTimer();
 }
 
-function selectAnswer(selected, correct, div) {
-  clearInterval(timer);
-  const options = document.querySelectorAll(".option");
-  options.forEach(o => o.style.pointerEvents = "none");
+function selectOption(index, el) {
+  document
+    .querySelectorAll(".option")
+    .forEach((o) => o.classList.remove("selected"));
+  el.classList.add("selected");
 
-  userAnswers[questions[currentQuestion].id] = selected;
-
-  if (selected === correct) {
-    score++;
-    div.classList.add("correct");
-    feedbackEl.textContent = "✅ Correct!";
-  } else {
-    div.classList.add("wrong");
-    feedbackEl.textContent = `❌ Wrong! Correct: ${correct}`;
-  }
-
+  userAnswers[current] = index;
   nextBtn.disabled = false;
-  if (currentQuestion === questions.length - 1) {
-    nextBtn.textContent = "Submit";
-  }
 }
 
 function startTimer() {
-  let time = 10;
-  timerEl.textContent = `Time: ${time}s`;
+  let left = 10;
+  timerEl.innerHTML = `<i class="fa-solid fa-hourglass-end"></i>: ${left}s`;
+  clearInterval(timer);
+
   timer = setInterval(() => {
-    time--;
-    timerEl.textContent = `Time: ${time}s`;
-    if (time <= 0) {
+    left--;
+    timerEl.innerHTML = `<i class="fa-solid fa-hourglass-end"></i>: ${left}s`;
+
+    if (left <= 0) {
       clearInterval(timer);
-      feedbackEl.textContent = "⏰ Time's up!";
-      userAnswers[questions[currentQuestion].id] = "No Answer";
-      nextBtn.disabled = false;
-      if (currentQuestion === questions.length - 1) {
-        nextBtn.textContent = "Submit";
-      }
+      // if user didn't choose, mark as null and auto advance with slide
+      if (userAnswers[current] === undefined) userAnswers[current] = null;
+      qaCard.classList.add("slide-out");
+      qaCard.addEventListener("animationend", () => goNext(), { once: true });
     }
   }, 1000);
 }
 
-function nextQuestion() {
-  currentQuestion++;
-  if (currentQuestion < questions.length) {
+function goNext() {
+  // score the current question
+  const q = questions[current];
+  if (userAnswers[current] === q.answer) score++;
+
+  // next
+  current++;
+  if (current < questions.length) {
     loadQuestion();
   } else {
-    showResult();
+    finishQuiz();
   }
 }
 
-function showResult() {
+function finishQuiz() {
+  clearInterval(timer);
   quizScreen.classList.add("hidden");
   resultScreen.classList.remove("hidden");
 
-  scoreEl.textContent = `Your Score: ${score} out of ${questions.length}`;
-
-  reviewEl.innerHTML = "";
-  questions.forEach(q => {
-    const p = document.createElement("p");
-    const userAns = userAnswers[q.id] || "No Answer";
-    if (userAns === q.answer) {
-      p.innerHTML = `✔ ${q.question} <br> Your Answer: ${userAns}`;
-      p.style.color = "lightgreen";
-    } else {
-      p.innerHTML = `❌ ${q.question} <br> Your Answer: ${userAns} | Correct: ${q.answer}`;
-      p.style.color = "salmon";
-    }
-    reviewEl.appendChild(p);
-  });
+  const pct = Math.round((score / questions.length) * 100);
+  scoreText.textContent = `${score}/${questions.length}`;
+  percentageText.textContent = `${pct}%`;
 
   // Save to localStorage
-  localStorage.setItem("quizScore", score);
-  localStorage.setItem("quizAnswers", JSON.stringify(userAnswers));
+  localStorage.setItem(
+    "quizResult",
+    JSON.stringify({
+      at: new Date().toISOString(),
+      score,
+      total: questions.length,
+      percentage: pct,
+      userAnswers,
+      questions,
+    })
+  );
+
+  // Reset review area state
+  reviewEl.classList.add("hidden");
+  reviewEl.innerHTML = "";
+}
+
+function escapeHTML(str) {
+  return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function toggleReview() {
+  if (!reviewEl.classList.contains("hidden")) {
+    reviewEl.classList.add("hidden");
+    return;
+  }
+
+  // build review
+  reviewEl.innerHTML = "";
+  questions.forEach((q, i) => {
+    const div = document.createElement("div");
+    const user = userAnswers[i];
+    const isCorrect = user === q.answer;
+
+    div.className = `review-item ${isCorrect ? "correct" : "wrong"}`;
+    div.innerHTML = `
+      <div><strong>Q${i + 1}:</strong> ${escapeHTML(q.q)}</div>
+      <div>Your Answer: ${
+        user !== null && user !== undefined
+          ? escapeHTML(q.options[user])
+          : "Not answered"
+      }</div>
+      <div>Correct Answer: ${escapeHTML(q.options[q.answer])}</div>
+    `;
+    reviewEl.appendChild(div);
+  });
+  reviewEl.classList.remove("hidden");
 }
 
 function restartQuiz() {
   resultScreen.classList.add("hidden");
   startScreen.classList.remove("hidden");
-  nextBtn.textContent = "Next";
 }
+
+/***********************
+ * Optional: Auto-show last result on reload
+ ***********************/
+window.addEventListener("load", () => {
+  const saved = localStorage.getItem("quizResult");
+  if (!saved) return;
+  const data = JSON.parse(saved);
+  startScreen.classList.add("hidden");
+  resultScreen.classList.remove("hidden");
+  scoreText.textContent = `${data.score}/${data.total}`;
+  percentageText.textContent = `${data.percentage}%`;
+  userAnswers = data.userAnswers || [];
+  reviewEl.classList.add("hidden");
+  reviewEl.innerHTML = "";
+});
