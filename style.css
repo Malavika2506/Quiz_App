@@ -183,3 +183,54 @@ button:disabled {
   from { transform: translateX(0);    opacity: 1; }
   to   { transform: translateX(-100%);opacity: 0; }
 }
+
+
+@media (max-width: 600px) {
+  .main-title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .screen {
+    width: 95%;
+    padding: 15px;
+  }
+
+  .qa-container {
+    width: 100%;
+    height: auto;
+    flex-direction: column;
+  }
+
+  #qa-card {
+    position: static;
+    height: auto;
+  }
+
+  .score-circle {
+    width: 120px;
+    height: 120px;
+  }
+
+  #score-text {
+    font-size: 18px;
+  }
+
+  #percentage-text {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .option {
+    font-size: 0.95rem;
+    padding: 8px 14px;
+  }
+
+  #options {
+    gap: 8px;
+  }
+}
